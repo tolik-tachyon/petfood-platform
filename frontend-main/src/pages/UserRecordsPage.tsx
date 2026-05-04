@@ -40,7 +40,7 @@ export type VetPetRequest = {
 
 type StatusFilter = 'all' | 'completed' | 'in-progress';
 
-export const VetDashboard = () => {
+export const UserRecordsPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
