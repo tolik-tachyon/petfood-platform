@@ -32,7 +32,8 @@ export const Sidebar = () => {
     { icon: MdPets, label: 'Мои питомцы', path: '/dashboard' },
     { icon: MdAssignment, label: 'Заявки', path: '/requests' },
     { icon: MdInsights, label: 'Рекомендации', path: '/recommendations' },
-    { icon: MdBarChart, label: 'Графики', path: '/analytics' },
+    { icon: MdBarChart, label: 'Графики', path: '/analytics'},
+    { icon: MdNoteAlt, label: 'Записи', path: '/records' },
   ];
 
   const vetMenuItems = [

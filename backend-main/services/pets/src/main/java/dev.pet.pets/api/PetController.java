@@ -193,6 +193,14 @@ public class PetController {
         return service.listAllHealthRecordsForVet(jwt);
     }
 
+    @GetMapping("/health-records/my")
+    public List<HealthRecordResponse> listMyHealthRecords(
+        @AuthenticationPrincipal Jwt jwt
+    ) {
+        UUID ownerId = UUID.fromString(jwt.getSubject());
+        return service.listHealthRecordsByOwner(ownerId);
+    }
+
     @GetMapping("/health-records/{recordId}/protein")
     public ProteinDigestionResponse proteinDigestion(@PathVariable java.util.UUID recordId) {
         return digestionService.simulateProtein(recordId);

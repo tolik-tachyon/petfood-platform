@@ -13,6 +13,14 @@ public interface PetHealthRecordRepository extends JpaRepository<PetHealthRecord
         SELECT DISTINCT phr
         FROM PetHealthRecord phr
         LEFT JOIN FETCH phr.symptoms
+        WHERE phr.ownerId = :ownerId
+    """)
+    List<PetHealthRecord> findByOwnerIdWithSymptoms(UUID ownerId);
+
+    @Query("""
+        SELECT DISTINCT phr
+        FROM PetHealthRecord phr
+        LEFT JOIN FETCH phr.symptoms
         WHERE phr.pet.id = :petId
           AND phr.ownerId = :ownerId
     """)

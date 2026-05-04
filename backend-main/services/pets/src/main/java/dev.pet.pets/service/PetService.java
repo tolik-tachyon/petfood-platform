@@ -495,6 +495,8 @@ public class PetService {
             .toList();
     }
 
+
+
     @Transactional(readOnly = true)
     public java.util.List<PetResponse> listOwnerPetsForVet(UUID ownerId) {
         return pets.findByOwnerId(ownerId)
@@ -536,6 +538,13 @@ public class PetService {
         return records.stream()
             .map(this::toHealthDto)
             .toList();
+    }
+
+    public List<HealthRecordResponse> listHealthRecordsByOwner(UUID ownerId) {
+        return healthRecordRepository.findByOwnerId(ownerId)
+                .stream()
+                .map(this::toHealthRecordResponse)
+                .toList();
     }
 
 

@@ -24,6 +24,7 @@ import './App.css';
 import { RequestDetail } from './pages/RequestDetail';
 import { VetRecommendation } from './pages/VetRecommendation';
 import { UserHandbook } from './pages/UserHandbook';
+import { UserRecordsPage } from './pages/UserRecordsPage';
 
 function App() {
   return (
@@ -161,6 +162,15 @@ function App() {
                     </PrivateRoute>
                   }
                 />
+
+                <Route
+                path="/records"
+                element={
+                  <PrivateRoute allowedRoles={['USER']}>
+                    <UserRecordsPage />
+                  </PrivateRoute>
+                }
+              />
 
                 <Route
                   path="/vet/dashboard"
