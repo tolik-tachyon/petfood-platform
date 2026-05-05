@@ -21,7 +21,7 @@ public class InternalUsersController {
     }
 
     @GetMapping("/{id}/email")
-    @PreAuthorize("hasRole('VET') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('VET') or hasRole('ADMIN') or hasRole('User')")
     public InternalUserEmailResponse getEmailById(@PathVariable UUID id) {
         User u = users.findById(id)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
