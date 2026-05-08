@@ -17,6 +17,11 @@ logging:
 
 smtp:
   gmail:
+    # Generic SMTP (Gmail, Brevo smtp-relay.brevo.com, etc.)
+    host: ${SMTP_HOST:smtp.gmail.com}
+    port: ${SMTP_PORT:587}
+    start-tls: ${SMTP_STARTTLS:true}
+    ssl: ${SMTP_SSL:false}
     user: ${SMTP_GMAIL_USER:}
     pass: ${SMTP_GMAIL_PASS:}
     from: ${SMTP_GMAIL_FROM:}
