@@ -1,6 +1,15 @@
 version: '3.8'
 
 services:
+  adminer:
+    image: adminer:latest
+    container_name: pets_adminer_ctn
+    restart: unless-stopped
+    ports:
+      - "8089:8080"
+    networks:
+      - pets_network
+
   postgres:
     image: postgres:16-alpine
     container_name: pets_postgres_ctn
