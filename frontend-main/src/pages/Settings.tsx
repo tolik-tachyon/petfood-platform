@@ -12,6 +12,11 @@ import {
 } from 'react-icons/md';
 import { Layout } from '../../layout/Layout';
 import { useAuth } from '../../context/AuthContext';
+import LanguageModal from '../components/settings/LanguageModal';
+import DeleteAccountModal from '../components/settings/DeleteAccountModal';
+import ChangeCredentialsModal from '../components/settings/ChangeCredentialsModal';
+import ChangeLoginModal from '../components/settings/ChangeLoginModal';
+import ChangePasswordModal from '../components/settings/ChangePasswordModal';
 import styles from '../styles/Settings.module.css';
 
 type SettingsItemProps = {
@@ -43,30 +48,21 @@ const SettingsItem = ({
   </button>
 );
 
+type Modal = 'none' | 'language' | 'delete' | 'credentials' | 'login' | 'password';
+
 export const Settings = () => {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const [isDarkTheme, setIsDarkTheme] = useState(false);
   const [language, setLanguage] = useState('Русский');
-  const [notice, setNotice] = useState('');
+  const [activeModal, setActiveModal] = useState<Modal>('none');
 
   useEffect(() => {
     const storedTheme = localStorage.getItem('settings.theme');
     const storedLanguage = localStorage.getItem('settings.language');
-
-    if (storedTheme) {
-      setIsDarkTheme(storedTheme === 'dark');
-    }
-
-    if (storedLanguage) {
-      setLanguage(storedLanguage);
-    }
+    if (storedTheme) setIsDarkTheme(storedTheme === 'dark');
+    if (storedLanguage) setLanguage(storedLanguage);
   }, []);
-
-  const showTemporaryNotice = (message: string) => {
-    setNotice(message);
-    window.setTimeout(() => setNotice(''), 2200);
-  };
 
   const handleThemeChange = () => {
     const nextTheme = !isDarkTheme;
@@ -74,12 +70,17 @@ export const Settings = () => {
     localStorage.setItem('settings.theme', nextTheme ? 'dark' : 'standard');
   };
 
-  const handleLanguageClick = () => {
-    const nextLanguage = language === 'Русский' ? 'English' : 'Русский';
-    setLanguage(nextLanguage);
-    localStorage.setItem('settings.language', nextLanguage);
-    showTemporaryNotice(`Язык: ${nextLanguage}`);
+  const handleLanguageSave = (_code: string, label: string) => {
+    setLanguage(label);
+    localStorage.setItem('settings.language', label);
   };
+
+  const handleDeleted = () => {
+    setActiveModal('none');
+    logout();
+  };
+
+  const close = () => setActiveModal('none');
 
   return (
     <Layout showSidebar={true}>
@@ -95,20 +96,20 @@ export const Settings = () => {
               icon={MdPerson}
               title="Редактировать профиль"
               description="Имя пользователя, дата рождения, номер телефона, страна, город"
-              onClick={() => showTemporaryNotice('Редактирование профиля будет подключено позже')}
+              onClick={() => {/* TODO: реализовать позже */}}
             />
             <SettingsItem
               icon={MdLockOutline}
               title="Изменить логин и пароль"
               description="Почта и пароль пользователя"
-              onClick={() => navigate('/reset-password')}
+              onClick={() => setActiveModal('credentials')}
             />
             <SettingsItem
               icon={MdDeleteOutline}
               title="Удалить аккаунт"
               description="После удаления аккаунта пути назад нет. Пожалуйста, будьте уверены."
               danger
-              onClick={() => showTemporaryNotice('Удаление аккаунта будет подключено после backend')}
+              onClick={() => setActiveModal('delete')}
             />
           </div>
         </section>
@@ -134,13 +135,13 @@ export const Settings = () => {
               icon={MdLanguage}
               title="Язык"
               description={language}
-              onClick={handleLanguageClick}
+              onClick={() => setActiveModal('language')}
             />
             <SettingsItem
               icon={MdHelp}
               title="Помощь"
               description="Сведения и вопросы о платформе"
-              onClick={() => showTemporaryNotice('Раздел помощи будет добавлен позже')}
+              onClick={() => navigate('/help')}
             />
           </div>
         </section>
@@ -150,9 +151,42 @@ export const Settings = () => {
             <MdLogout className={styles.logoutIcon} />
             Выйти из аккаунта
           </button>
-          {notice && <p className={styles.notice}>{notice}</p>}
         </div>
       </div>
+
+      <LanguageModal
+        isOpen={activeModal === 'language'}
+        currentLanguage={
+          language === 'Русский' ? 'ru' : language === 'English' ? 'en' : 'kz'
+        }
+        onClose={close}
+        onSave={handleLanguageSave}
+      />
+
+      <DeleteAccountModal
+        isOpen={activeModal === 'delete'}
+        userEmail={user?.email ?? ''}
+        onClose={close}
+        onDeleted={handleDeleted}
+      />
+
+      <ChangeCredentialsModal
+        isOpen={activeModal === 'credentials'}
+        onClose={close}
+        onChangeLogin={() => setActiveModal('login')}
+        onChangePassword={() => setActiveModal('password')}
+      />
+
+      <ChangeLoginModal
+        isOpen={activeModal === 'login'}
+        onClose={close}
+      />
+
+      <ChangePasswordModal
+        isOpen={activeModal === 'password'}
+        userEmail={user?.email ?? ''}
+        onClose={close}
+      />
     </Layout>
   );
 };
