@@ -1,0 +1,282 @@
+.page {
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 2rem 2.5rem;
+  box-sizing: border-box;
+}
+
+.header {
+  height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  border: 1px solid #dddddd;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  margin-bottom: 1.5rem;
+}
+
+.header h1 {
+  margin: 0;
+  color: #f47f4b;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.card {
+  background: #ffffff;
+  border: 1px solid #dddddd;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  padding: 2rem 4rem;
+  margin-bottom: 1.5rem;
+}
+
+.card h2 {
+  color: #f47f4b;
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+  padding: 0 0 1.1rem 1.5rem;
+  border-bottom: 1px solid #cfcfcf;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+.item {
+  min-height: 86px;
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) 36px;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  padding: 0 1.25rem;
+  border: 0;
+  border-bottom: 1px solid #d8d8d8;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.item:last-child {
+  border-bottom: 0;
+}
+
+.item:hover {
+  background: #fff7f2;
+}
+
+.item:active {
+  transform: scale(0.997);
+}
+
+.itemIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8c8c8c;
+}
+
+.dangerIcon {
+  color: #7f7f7f;
+}
+
+.icon {
+  width: 34px;
+  height: 34px;
+}
+
+.itemText {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.itemTitle {
+  color: #242424;
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.itemDescription {
+  color: #858585;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.chevron {
+  width: 36px;
+  height: 36px;
+  color: #8c8c8c;
+  justify-self: end;
+}
+
+.switch {
+  position: relative;
+  justify-self: end;
+  width: 62px;
+  height: 32px;
+  border-radius: 999px;
+  background: #f47f4b;
+  transition: background-color 0.2s ease;
+}
+
+.switchOn {
+  background: #6b7280;
+}
+
+.switchThumb {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #f4f4f4;
+  border: 1px solid #d0d0d0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+  transition: transform 0.2s ease;
+}
+
+.switchThumb::before,
+.switchThumb::after {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border-top: 2px solid #b4b4b4;
+  transform: rotate(45deg);
+}
+
+.switchThumb::after {
+  transform: rotate(-45deg);
+}
+
+.switchOn .switchThumb {
+  transform: translateX(30px);
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-left: 4rem;
+}
+
+.logoutButton {
+  min-width: 220px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  padding: 0 1.25rem;
+  border: 0;
+  border-radius: 5px;
+  background: #ff854f;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.logoutButton:hover {
+  background: #f06f3c;
+}
+
+.logoutIcon {
+  width: 22px;
+  height: 22px;
+}
+
+.notice {
+  margin: 0;
+  color: #666666;
+  font-size: 14px;
+}
+
+@media (max-width: 900px) {
+  .page {
+    padding: 1.25rem;
+  }
+
+  .card {
+    padding: 1.5rem;
+  }
+
+  .card h2 {
+    padding-left: 0.5rem;
+  }
+
+  .item {
+    grid-template-columns: 40px minmax(0, 1fr) 32px;
+    min-height: 82px;
+    gap: 0.75rem;
+    padding: 0 0.5rem;
+  }
+
+  .icon {
+    width: 30px;
+    height: 30px;
+  }
+
+  .itemTitle {
+    font-size: 16px;
+  }
+
+  .footer {
+    padding-left: 0;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 560px) {
+  .page {
+    padding: 1rem 0.75rem;
+  }
+
+  .header {
+    height: 64px;
+  }
+
+  .card {
+    padding: 1rem;
+  }
+
+  .item {
+    grid-template-columns: 34px minmax(0, 1fr) 28px;
+    min-height: 92px;
+  }
+
+  .itemDescription {
+    font-size: 11px;
+  }
+
+  .switch {
+    width: 54px;
+    height: 30px;
+  }
+
+  .switchThumb {
+    width: 22px;
+    height: 22px;
+  }
+
+  .switchOn .switchThumb {
+    transform: translateX(24px);
+  }
+
+  .logoutButton {
+    width: 100%;
+  }
+}

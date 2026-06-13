@@ -5,3 +5,7 @@
 deploy.log
 actions-runner/
 AGENTS.md
+**/bin/
+.gradle
+**/build/
+.dockerignore

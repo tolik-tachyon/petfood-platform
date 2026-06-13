@@ -28,6 +28,7 @@ import { UserRecordsPage } from './pages/UserRecordsPage';
 import { UserRecommendationCreate } from './pages/UserRecommendationCreate';
 import { UserRecommendationView } from './pages/UserRecommendationView';
 import { UserRecommendationCreateDetails } from './pages/UserRecommendationCreateDetails';
+import { Settings } from './pages/Settings';
 
 
 
@@ -148,6 +149,15 @@ function App() {
                   element={
                     <PrivateRoute allowedRoles={['USER']}>
                       <AnalyticsList />
+                    </PrivateRoute>
+                  }
+                />
+
+                <Route
+                  path="/settings"
+                  element={
+                    <PrivateRoute allowedRoles={['USER', 'VET']}>
+                      <Settings />
                     </PrivateRoute>
                   }
                 />
