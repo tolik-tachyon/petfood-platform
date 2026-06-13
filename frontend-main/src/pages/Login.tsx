@@ -43,7 +43,7 @@ const Login = () => {
     <div className={styles.authContainer}>
       <div className={styles.authCard}>
         <div className={styles.authFormContainer}>
-          <h2>Вход test 1</h2>
+          <h2>Вход</h2>
 
           <form onSubmit={handleSubmit} noValidate>
             <InputField
