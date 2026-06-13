@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Search, X, SlidersHorizontal, RefreshCw } from 'lucide-react';
 import { apiClient } from '../../src/utils/apiClient';
+import { resolveApiUrl } from '../../src/utils/resolveApiUrl';
 import { useAuth } from '../../context/AuthContext';
 import { Sidebar } from '../components/Sidebar';
 import Calendar from '../components/Calendar';
@@ -12,7 +13,7 @@ const getPhotoDownloadUrl = async (objectKey: string): Promise<string> => {
     const data = await apiClient.get<{ url: string; objectKey: string }>(
       `/api/v1/pets/photos/download-url?objectKey=${encodeURIComponent(objectKey)}`
     );
-    return data.url;
+    return resolveApiUrl(data.url);
   } catch (error) {
     console.error('Failed to get photo download URL:', error);
     return '';

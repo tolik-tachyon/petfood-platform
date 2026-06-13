@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+ import { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { apiClient } from '../utils/apiClient';
 import styles from '../styles/DigestionAnalysis.module.css';
 
 type ProteinPoint = {
@@ -71,21 +72,13 @@ export default function DigestionAnalysis({ healthRecordId, onDataLoaded }: Dige
       setError(null);
 
       try {
-        const baseUrl = `/api/v1/pets/health-records/${healthRecordId}`;
+        const basePath = `/api/v1/pets/health-records/${healthRecordId}`;
 
-        const [proteinRes, fatRes, carbsRes] = await Promise.all([
-          fetch(baseUrl + '/protein'),
-          fetch(baseUrl + '/fat'),
-          fetch(baseUrl + '/carbs')
+        const [protein, fat, carbs] = await Promise.all([
+          apiClient.get<ProteinData>(`${basePath}/protein`),
+          apiClient.get<FatData>(`${basePath}/fat`),
+          apiClient.get<CarbData>(`${basePath}/carbs`),
         ]);
-
-        if (!proteinRes.ok || !fatRes.ok || !carbsRes.ok) {
-          throw new Error('Failed to fetch digestion data');
-        }
-
-        const protein = await proteinRes.json();
-        const fat = await fatRes.json();
-        const carbs = await carbsRes.json();
 
         setProteinData(protein);
         setFatData(fat);

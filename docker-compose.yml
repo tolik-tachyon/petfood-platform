@@ -165,6 +165,7 @@ services:
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
       # Persist pet photos when using app.photo-storage.type=fs (default in application.yml)
       PETS_PHOTO_DIR: /data/pets-photos
+      PETS_PHOTO_STORAGE_BASE_URL: https://agrotech.astanait.edu.kz/petfood
     volumes:
       - pets_photos:/data/pets-photos
     restart: unless-stopped
@@ -241,7 +242,7 @@ services:
       context: ./frontend-main
       dockerfile: Dockerfile
       args:
-        VITE_API_BASE_URL: "http://10.1.10.144:5555/api"
+        VITE_API_BASE_URL: "/petfood"
     container_name: pets_frontend
     restart: unless-stopped
     networks:
