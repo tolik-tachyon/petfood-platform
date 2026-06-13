@@ -83,12 +83,8 @@ class WebhookHandler(BaseHTTPRequestHandler):
         script = f"""
 set -e
 cd {shlex.quote(str(PROJECT_DIR))}
-git fetch origin main
-git reset --hard origin/main
-git clean -fd
-docker compose down
-docker compose up -d --build --remove-orphans
-docker compose ps
+chmod +x scripts/deploy-selective.sh
+./scripts/deploy-selective.sh
 """
 
         try:

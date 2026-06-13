@@ -1,4 +1,5 @@
 import { apiClient } from '../src/utils/apiClient';
+import { resolveApiUrl } from '../src/utils/resolveApiUrl';
 import type { Pet } from '../context/PetContext/types';
 
 const getPhotoDownloadUrl = async (objectKey: string): Promise<string> => {
@@ -6,7 +7,7 @@ const getPhotoDownloadUrl = async (objectKey: string): Promise<string> => {
     const data = await apiClient.get<{ url: string; objectKey: string }>(
       `/api/v1/pets/photos/download-url?objectKey=${encodeURIComponent(objectKey)}`
     );
-    return data.url;
+    return resolveApiUrl(data.url);
   } catch (error) {
     console.error('Failed to get photo download URL:', error);
     return '';
@@ -84,7 +85,7 @@ export const petService = {
   },
 
   async uploadPhotoToStorage(url: string, file: File, contentType: string): Promise<void> {
-    const response = await fetch(url, {
+    const response = await fetch(resolveApiUrl(url), {
       method: 'PUT',
       headers: { 'Content-Type': contentType },
       body: file

@@ -5,6 +5,11 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      full_deploy:
+        description: Rebuild all application containers
+        type: boolean
+        default: false
 
 concurrency:
   group: production-deploy
@@ -16,16 +21,13 @@ jobs:
     timeout-minutes: 60
 
     steps:
-      - name: Deploy main on local server
+      - name: Selective deploy on local server
         shell: bash
         run: |
           set -euo pipefail
           PROJECT_DIR="/home/iot/PetFood/petfood_platforma"
-
-          cd "$PROJECT_DIR"
-          git fetch origin main
-          git reset --hard origin/main
-
-          docker compose down
-          docker compose up -d --build --remove-orphans
-          docker compose ps
+          export FULL_DEPLOY="${{ github.event_name == 'workflow_dispatch' && inputs.full_deploy == true && '1' || '0' }}"
+          export DEPLOY_BEFORE_SHA="${{ github.event.before }}"
+          export DEPLOY_AFTER_SHA="${{ github.sha }}"
+          chmod +x "$PROJECT_DIR/scripts/deploy-selective.sh"
+          "$PROJECT_DIR/scripts/deploy-selective.sh"

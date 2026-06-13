@@ -9,6 +9,8 @@
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  padding: 1rem;
+  box-sizing: border-box;
 }
 
 .modal {
@@ -16,8 +18,10 @@
   border-radius: 12px;
   padding: 2rem;
   max-width: 400px;
-  width: 90%;
+  width: 100%;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
 }
 
 .title {
@@ -43,6 +47,23 @@
   display: flex;
   gap: 1rem;
   justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .modal {
+    padding: 1.5rem;
+  }
+
+  .buttons {
+    flex-direction: column-reverse;
+  }
+
+  .cancelBtn,
+  .confirmBtn {
+    width: 100%;
+    text-align: center;
+  }
 }
 
 .cancelBtn,
