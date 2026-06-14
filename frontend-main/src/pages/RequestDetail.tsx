@@ -11,7 +11,7 @@ export const RequestDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { requests, fetchRequestById } = useRequests();
-  const { pets } = usePets();
+  const { pets, isLoading: isLoadingPets } = usePets();
   const [isLoading, setIsLoading] = useState(true);
   const [request, setRequest] = useState<PetRequest | null>(null);
 
@@ -54,7 +54,7 @@ export const RequestDetail = () => {
     });
   };
 
-  if (isLoading) {
+  if (isLoading || isLoadingPets) {
     return (
       <Layout showSidebar={true}>
         <div style={{ padding: '2rem' }}>Загрузка...</div>
@@ -62,11 +62,22 @@ export const RequestDetail = () => {
     );
   }
 
-  if (!request || !pet) {
+  if (!request) {
     return (
       <Layout showSidebar={true}>
         <div style={{ padding: '2rem' }}>
           <p>Запрос не найден</p>
+          <button onClick={handleBack}>Назад к списку</button>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!pet) {
+    return (
+      <Layout showSidebar={true}>
+        <div style={{ padding: '2rem' }}>
+          <p>Питомец не найден</p>
           <button onClick={handleBack}>Назад к списку</button>
         </div>
       </Layout>

@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import { apiClient } from '../utils/apiClient';
+import { usePets } from '../../context/PetContext';
 
 export type ActivityType = {
   id: number;
@@ -12,60 +11,14 @@ export type Symptom = {
   name: string;
 };
 
-type ReferenceData = {
-  activityTypes: ActivityType[];
-  symptoms: Symptom[];
-  isLoading: boolean;
-  error: string | null;
-};
-
-let cachedData: ReferenceData | null = null;
-
+/** @deprecated Prefer usePets() directly — kept for backward compatibility */
 export const useReferenceData = () => {
-  const [data, setData] = useState<ReferenceData>(
-    cachedData || {
-      activityTypes: [],
-      symptoms: [],
-      isLoading: true,
-      error: null,
-    }
-  );
+  const { activityTypes, symptoms, isLoadingReference } = usePets();
 
-  useEffect(() => {
-    if (cachedData) {
-      setData(cachedData);
-      return;
-    }
-
-    const fetchReferenceData = async () => {
-      try {
-        const [activityTypes, symptoms] = await Promise.all([
-          apiClient.get<ActivityType[]>('/api/v1/pets/ref/activity-types'),
-          apiClient.get<Symptom[]>('/api/v1/pets/ref/symptoms'),
-        ]);
-
-        const newData: ReferenceData = {
-          activityTypes,
-          symptoms,
-          isLoading: false,
-          error: null,
-        };
-
-        cachedData = newData;
-        setData(newData);
-      } catch (error: any) {
-        const errorData: ReferenceData = {
-          activityTypes: [],
-          symptoms: [],
-          isLoading: false,
-          error: error.message || 'Не удалось загрузить справочные данные',
-        };
-        setData(errorData);
-      }
-    };
-
-    fetchReferenceData();
-  }, []);
-
-  return data;
+  return {
+    activityTypes,
+    symptoms,
+    isLoading: isLoadingReference,
+    error: null,
+  };
 };

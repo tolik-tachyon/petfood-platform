@@ -28,7 +28,7 @@ type RequestWithRecommendation = {
 const PetProfile = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const { getPetById, deletePet } = usePets();
+  const { getPetById, deletePet, isLoading } = usePets();
   const { getRequestsByPetId, fetchRequestsByPetId } = useRequests();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [requestsWithRecommendations, setRequestsWithRecommendations] = useState<RequestWithRecommendation[]>([]);
@@ -102,6 +102,16 @@ const PetProfile = () => {
   const handleViewAnalytics = (healthRecordId: string) => {
     navigate(`/analytics/${healthRecordId}`);
   };
+
+  if (isLoading) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.notFound}>
+          <h2>Загрузка...</h2>
+        </div>
+      </div>
+    );
+  }
 
   if (!pet) {
     return (

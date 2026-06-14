@@ -35,7 +35,7 @@ export const VetRecommendation = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { addRecommendationToRequest } = useRequests();
-  const { breeds } = usePets();
+  const { breeds, isLoadingReference, pets } = usePets();
 
   const request = location.state?.request || null;
   const [error, setError] = useState<string | null>(null);
@@ -70,18 +70,23 @@ export const VetRecommendation = () => {
       return;
     }
 
-    const breedName = request.petBreed || request.breedName;
-
-    if (breedName && breeds.length > 0) {
-      const englishName = resolveBreedNameToEnglish(breedName, breeds);
-
-      if (englishName) {
-        setEnglishBreedName(englishName);
-      } else {
-        setEnglishBreedName('');
-      }
+    if (isLoadingReference) {
+      return;
     }
-  }, [request, breeds]);
+
+    const breedName =
+      request.petBreed ||
+      request.breedName ||
+      pets.find(p => p.id === request.petId)?.breedName;
+
+    if (!breedName) {
+      setEnglishBreedName('');
+      return;
+    }
+
+    const englishName = resolveBreedNameToEnglish(breedName, breeds);
+    setEnglishBreedName(englishName || '');
+  }, [request, breeds, pets, isLoadingReference]);
 
   useEffect(() => {
     if (!englishBreedName) {
@@ -374,6 +379,7 @@ export const VetRecommendation = () => {
 
         <DiseaseSelector
           englishBreedName={englishBreedName}
+          isLoadingBreed={isLoadingReference}
           diseases={diseases}
           isLoadingDiseases={isLoadingDiseases}
           selectedDisease={selectedDisease}

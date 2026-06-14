@@ -1,4 +1,4 @@
-import { useReferenceData } from '../hooks/useReferenceData';
+import { usePets } from '../../context/PetContext';
 import PetRegistrationDropdown from './PetRegistrationDropdown';
 import styles from '../styles/PetRequestForm.module.css';
 
@@ -9,7 +9,7 @@ type SymptomsSelectorProps = {
 };
 
 export const SymptomsSelector = ({ selectedSymptoms, onSymptomsChange, error }: SymptomsSelectorProps) => {
-  const { symptoms, isLoading, error: fetchError } = useReferenceData();
+  const { symptoms, isLoadingReference, fetchReferenceData } = usePets();
 
   const handleSelect = (value: string) => {
     if (value && !selectedSymptoms.includes(value)) {
@@ -21,7 +21,7 @@ export const SymptomsSelector = ({ selectedSymptoms, onSymptomsChange, error }: 
     onSymptomsChange(selectedSymptoms.filter(s => s !== symptom));
   };
 
-  if (isLoading) {
+  if (isLoadingReference) {
     return (
       <div>
         <label className={styles.label}>
@@ -34,14 +34,17 @@ export const SymptomsSelector = ({ selectedSymptoms, onSymptomsChange, error }: 
     );
   }
 
-  if (fetchError) {
+  if (symptoms.length === 0) {
     return (
       <div>
         <label className={styles.label}>
           Симптомы: <span className={styles.required}>*</span>
         </label>
         <div style={{ padding: '1rem', color: '#d32f2f', backgroundColor: '#ffebee', borderRadius: '8px' }}>
-          {fetchError}
+          Не удалось загрузить справочник симптомов.{' '}
+          <button type="button" onClick={() => fetchReferenceData()} style={{ textDecoration: 'underline', background: 'none', border: 'none', color: '#d32f2f', cursor: 'pointer' }}>
+            Повторить
+          </button>
         </div>
       </div>
     );

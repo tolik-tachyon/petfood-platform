@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { usePets } from '../../context/PetContext';
 import { useRequests, PetRequest } from '../../context/RequestContext';
-import { useLocation } from 'react-router-dom';
 import { usePetRequestForm } from '../hooks/usePetRequestForm';
 import { useFormPersistence } from '../hooks/useFormPersistence';
 
@@ -21,7 +20,7 @@ import styles from '../styles/PetRequestForm.module.css';
 export const PetRequestForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { pets, getPetById } = usePets();
+  const { pets, getPetById, isLoadingReference, isLoading: isLoadingPets } = usePets();
   const { addRequest, updateRequest } = useRequests();
 
   const [showCancelModal, setShowCancelModal] = useState(false);
@@ -128,6 +127,27 @@ export const PetRequestForm = () => {
     navigate('/requests');
   };
 
+  if (isLoadingPets || isLoadingReference) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.contentWrapper}>
+          <header className={styles.header}>
+            <button className={styles.backBtn} onClick={handleCancel}>
+              <MdKeyboardArrowLeft className={styles.backIcon} />
+              {FORM_LABELS.BACK_BUTTON}
+            </button>
+            <h1 className={styles.title}>{FORM_LABELS.PAGE_TITLE}</h1>
+          </header>
+          <main className={styles.main}>
+            <div className={styles.card} style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>
+              Загрузка данных...
+            </div>
+          </main>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.container}>
       <div className={styles.contentWrapper}>
@@ -193,16 +213,16 @@ export const PetRequestForm = () => {
                   <button
                     className={styles.cancelActionBtn}
                     onClick={handleCancel}
-                    disabled={isSubmitting}
-                  >
-                    {FORM_LABELS.CANCEL_BUTTON}
-                  </button>
-                  <button
-                    className={styles.saveBtn}
-                    onClick={handleSave}
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? 'Сохранение...' : FORM_LABELS.SAVE_BUTTON}
+                  disabled={isSubmitting || isLoadingReference}
+                >
+                  {FORM_LABELS.CANCEL_BUTTON}
+                </button>
+                <button
+                  className={styles.saveBtn}
+                  onClick={handleSave}
+                  disabled={isSubmitting || isLoadingReference}
+                >
+                  {isSubmitting ? 'Сохранение...' : isLoadingReference ? 'Загрузка...' : FORM_LABELS.SAVE_BUTTON}
                   </button>
                 </div>
               </>

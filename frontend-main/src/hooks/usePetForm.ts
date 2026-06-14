@@ -33,7 +33,7 @@ const resolveDogSpeciesId = (species: Species[]): number => {
 const STORAGE_KEY = 'pet_registration_draft';
 
 export const usePetForm = (editPetId?: string) => {
-  const { species, breeds, colors, addPet, updatePet } = usePets();
+  const { species, breeds, colors, addPet, updatePet, isLoadingReference } = usePets();
   const isEditMode = !!editPetId;
 
   const [formData, setFormData] = useState<PetFormData>(INITIAL_FORM_DATA);
@@ -236,6 +236,13 @@ export const usePetForm = (editPetId?: string) => {
 
   const submitForm = async (): Promise<boolean> => {
     if (!validateForm()) {
+      return false;
+    }
+
+    if (isLoadingReference) {
+      setErrors({
+        general: 'Справочные данные ещё загружаются. Подождите и попробуйте снова.',
+      });
       return false;
     }
 

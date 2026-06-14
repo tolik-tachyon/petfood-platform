@@ -3,6 +3,7 @@ import styles from '../styles/DiseaseSelector.module.css';
 
 type DiseaseSelectorProps = {
   englishBreedName: string;
+  isLoadingBreed?: boolean;
   diseases: string[];
   isLoadingDiseases: boolean;
   selectedDisease: string;
@@ -14,6 +15,7 @@ type DiseaseSelectorProps = {
 
 export const DiseaseSelector = ({
   englishBreedName,
+  isLoadingBreed = false,
   diseases,
   isLoadingDiseases,
   selectedDisease,
@@ -36,7 +38,11 @@ export const DiseaseSelector = ({
       <h2 className={styles.sectionTitle}>Заболевание</h2>
 
       {!englishBreedName ? (
-        <div className={styles.errorText}>Не удалось определить породу</div>
+        isLoadingBreed ? (
+          <div className={styles.loadingText}>Определение породы...</div>
+        ) : (
+          <div className={styles.errorText}>Не удалось определить породу</div>
+        )
       ) : isLoadingDiseases ? (
         <div className={styles.loadingText}>Загрузка заболеваний...</div>
       ) : diseases.length === 0 ? (

@@ -154,8 +154,12 @@ const PetRegistration = () => {
               <p className={styles.errorGeneral}>{errors.general}</p>
             )}
 
-            <button type="submit" className={styles.submitBtn} disabled={loading}>
-              {loading ? (isEditMode ? 'Обновление...' : 'Сохранение...') : (isEditMode ? 'Обновить' : 'Сохранить')}
+            <button type="submit" className={styles.submitBtn} disabled={loading || isLoadingReference}>
+              {loading
+                ? (isEditMode ? 'Обновление...' : 'Сохранение...')
+                : isLoadingReference
+                  ? 'Загрузка...'
+                  : (isEditMode ? 'Обновить' : 'Сохранить')}
             </button>
           </form>
         </div>
