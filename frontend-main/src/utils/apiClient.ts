@@ -1,4 +1,21 @@
+import { parseApiErrorBody, parseApiErrorText } from './parseApiError';
+
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '';
+
+const buildHttpError = async (response: Response, fallback: string): Promise<Error> => {
+  const rawText = await response.text();
+  let message = fallback;
+
+  if (rawText) {
+    try {
+      message = parseApiErrorBody(JSON.parse(rawText)) || message;
+    } catch {
+      message = parseApiErrorText(rawText) || message;
+    }
+  }
+
+  return new Error(message);
+};
 
 const fetchWithTimeout = async (url: string, options: RequestInit, timeout = 15000): Promise<Response> => {
   const controller = new AbortController();
@@ -41,8 +58,7 @@ export const apiClient = {
     );
 
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`API Error: ${response.status} - ${errorText}`);
+      throw await buildHttpError(response, `Ошибка запроса (${response.status})`);
     }
 
     return response.json();
@@ -63,9 +79,7 @@ export const apiClient = {
     );
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      const errorMessage = errorData.message || errorData.error || `Request failed with status ${response.status}`;
-      throw new Error(errorMessage);
+      throw await buildHttpError(response, `Ошибка запроса (${response.status})`);
     }
 
     return response.json();
@@ -86,8 +100,7 @@ export const apiClient = {
     );
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || "Update failed");
+      throw await buildHttpError(response, `Ошибка запроса (${response.status})`);
     }
 
     return response.json();
@@ -107,7 +120,7 @@ export const apiClient = {
     );
 
     if (!response.ok) {
-      throw new Error("Delete failed");
+      throw await buildHttpError(response, `Ошибка запроса (${response.status})`);
     }
   }
 };

@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Dict
+import asyncio
 import pandas as pd
 from scipy.optimize import linprog
 from scipy.sparse import hstack, csr_matrix
@@ -11,6 +12,13 @@ from app.models import *
 from app.utils import (
     load_data, build_ml_models, get_disorder_keywords,
     get_ingredient_categories
+)
+from app.recipe_optimize import (
+    remap_ingredient_ranges,
+    resolve_maximize_nutrients,
+    resolve_recipe_ingredients,
+    brute_force_integer_percents,
+    soft_constraint_minimize,
 )
 from app.kcal_calculate import (
     kcal_calculate, protein_need_calc, get_other_nutrient_norms,
@@ -338,11 +346,10 @@ async def get_disorder_recommendations(request: DisorderRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/optimize/recipe", response_model=OptimizedRecipeResponse, tags=["Recipe Optimization"])
-async def optimize_recipe(request: OptimizeRecipeRequest):
-    """Optimize food recipe composition based on constraints"""
+def _optimize_recipe_impl(request: OptimizeRecipeRequest) -> OptimizedRecipeResponse:
+    """Optimize food recipe composition based on constraints (CPU-bound)."""
     try:
-        _, disease_df, _, food_ingredients_df = load_data()
+        _, disease_df, merge_tab_df, food_ingredients_df = load_data()
 
         breed_data = disease_df[disease_df["Breed"] == request.breed]
         if breed_data.empty:
@@ -382,10 +389,33 @@ async def optimize_recipe(request: OptimizeRecipeRequest):
             cols_to_divide + other_nutrients_1 + other_nutrients_2 + major_minerals + vitamins
             ].to_dict(orient='index')
 
-        # Prepare constraint mappings
-        ingredient_names = request.ingredients
-        ingr_range_dict = {ir.ingredient: (ir.min_percent, ir.max_percent) for ir in request.ingredient_ranges}
+        food_keys = set(food.keys())
+        ingredient_names, ingredient_name_map, missing_ingredients = resolve_recipe_ingredients(
+            request.ingredients,
+            food_keys,
+            merge_tab_df,
+            food_ingredients_df,
+        )
+
+        if missing_ingredients:
+            missing_list = ", ".join(f"«{name}»" for name in missing_ingredients)
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    f"Для этих ингредиентов нет данных о составе: {missing_list}. "
+                    "Уберите их из списка или замените на другие из рекомендаций."
+                ),
+            )
+
+        if not ingredient_names:
+            raise HTTPException(
+                status_code=400,
+                detail="Выберите хотя бы один ингредиент с известным составом.",
+            )
+
+        ingr_range_dict = remap_ingredient_ranges(request.ingredient_ranges, ingredient_name_map)
         nutr_range_dict = {nr.nutrient: (nr.min_value, nr.max_value) for nr in request.nutrient_ranges}
+        maximize_nutrients = resolve_maximize_nutrients(request.maximize_nutrients, cols_to_divide)
 
         # Build LP problem
         ingr_ranges = [ingr_range_dict.get(ing, (0, 100)) for ing in ingredient_names]
@@ -407,7 +437,7 @@ async def optimize_recipe(request: OptimizeRecipeRequest):
         bounds = [(low / 100, high / 100) for (low, high) in ingr_ranges]
 
         # Objective function
-        f = [-sum(food[i][nutr] for nutr in request.maximize_nutrients if nutr in food[i])
+        f = [-sum(food[i][nutr] for nutr in maximize_nutrients if nutr in food[i])
              for i in ingredient_names]
 
         # Try linear programming
@@ -475,42 +505,26 @@ async def optimize_recipe(request: OptimizeRecipeRequest):
                 method="optimization"
             )
         else:
-            # Fallback to brute force with larger step for performance
-            step = 5  # Increased from 1 to 5 for faster computation
-            variants = []
-            ranges = [np.arange(low, high + step, step) for (low, high) in ingr_ranges]
+            fallback_method = "soft_constraint"
+            best_recipe = soft_constraint_minimize(
+                ingredient_names,
+                ingr_range_dict,
+                food,
+                cols_to_divide,
+                nutr_range_dict,
+            )
 
-            for combo in itertools.product(*ranges):
-                if abs(sum(combo) - 100) < 1e-6:
-                    variants.append(combo)
+            if best_recipe is None:
+                fallback_method = "brute_force"
+                best_recipe = brute_force_integer_percents(
+                    ingredient_names,
+                    ingr_ranges,
+                    food,
+                    cols_to_divide,
+                    nutr_range_dict,
+                )
 
-            best_recipe = None
-            min_penalty = float("inf")
-
-            for combo in variants:
-                values = dict(zip(ingredient_names, combo))
-
-                totals = {nutr: 0.0 for nutr in cols_to_divide}
-                for i, ingr in enumerate(ingredient_names):
-                    for nutr in cols_to_divide:
-                        totals[nutr] += values[ingr] * food[ingr][nutr]
-
-                penalty = 0
-                for nutr in cols_to_divide:
-                    val = totals[nutr]
-                    min_val = nutr_ranges.get(nutr, (0, 100))[0]
-                    max_val = nutr_ranges.get(nutr, (0, 100))[1]
-
-                    if val < min_val:
-                        penalty += min_val - val
-                    elif val > max_val:
-                        penalty += val - max_val
-
-                if penalty < min_penalty:
-                    min_penalty = penalty
-                    best_recipe = (values, totals)
-
-            if not best_recipe:
+            if best_recipe is None:
                 raise HTTPException(status_code=400, detail="Could not find valid recipe composition")
 
             values, totals = best_recipe
@@ -533,7 +547,6 @@ async def optimize_recipe(request: OptimizeRecipeRequest):
                 for nutr in all_nutrients
             }
 
-            # Calculate nutrient deficiencies (if nutrient_norms are provided)
             nutrient_deficiencies = {}
             if hasattr(request, 'nutrient_norms') and request.nutrient_norms:
                 for nutrient_name, required_amount in request.nutrient_norms.items():
@@ -567,8 +580,19 @@ async def optimize_recipe(request: OptimizeRecipeRequest):
                 ingredients_required=ingredients_required,
                 nutritional_value_total=nutritional_total,
                 nutrient_deficiencies=nutrient_deficiencies,
-                method="brute_force"
+                method=fallback_method
             )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/optimize/recipe", response_model=OptimizedRecipeResponse, tags=["Recipe Optimization"])
+async def optimize_recipe(request: OptimizeRecipeRequest):
+    """Run recipe optimization without blocking other API requests."""
+    try:
+        return await asyncio.to_thread(_optimize_recipe_impl, request)
     except HTTPException:
         raise
     except Exception as e:

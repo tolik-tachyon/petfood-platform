@@ -2,6 +2,7 @@ export const PET_PROFILE_TEXT = {
   PAGE_TITLE: 'Профиль питомца',
   BACK_BUTTON: 'Назад',
   DELETE_BUTTON: 'Удалить питомца',
+  EXPORT_BUTTON: 'Скачать карточку',
   EDIT_BUTTON: 'Редактировать профиль',
 
   NOT_FOUND_TITLE: 'Питомец не найден',

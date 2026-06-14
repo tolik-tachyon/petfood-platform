@@ -1,4 +1,5 @@
 import { apiClient } from '../src/utils/apiClient';
+import { toUserErrorMessage } from '../src/utils/parseApiError';
 import { OptimizationResult } from '../context/RequestContext';
 
 export type VetPetRequest = {
@@ -116,33 +117,36 @@ export type SavedRecommendation = {
   payload: OptimizationResult;
 };
 
-const getEnglishBreedName = (breedName: string): string => {
-  return breedName.toLowerCase().trim();
-};
+const getEnglishBreedName = (breedName: string): string => breedName.toLowerCase().trim();
 
-const encodeBreedNameForUrl = (breedName: string): string => {
-  const normalized = getEnglishBreedName(breedName);
-  return encodeURIComponent(normalized);
+const encodeBreedNameForUrl = (breedName: string): string =>
+  encodeURIComponent(getEnglishBreedName(breedName));
+
+const RECOMMENDER_TIMEOUT_MS = 45000;
+const RECOMMENDER_OPTIMIZE_TIMEOUT_MS = 120000;
+
+const raiseUserError = (error: unknown, fallback: string): never => {
+  throw new Error(toUserErrorMessage(error, fallback));
 };
 
 export const vetService = {
   async fetchAllHealthRecords(): Promise<VetPetRequest[]> {
-    const data = await apiClient.get<VetPetRequest[]>('/api/v1/pets/health-records/all');
-    return data;
+    return apiClient.get<VetPetRequest[]>('/api/v1/pets/health-records/all');
   },
 
   async fetchHealthRecordById(recordId: string): Promise<VetPetRequest> {
-    const data = await apiClient.get<VetPetRequest>(`/api/v1/pets/health-records/${recordId}`);
-    return data;
+    return apiClient.get<VetPetRequest>(`/api/v1/pets/health-records/${recordId}`);
   },
 
   async getBreedInfo(breedName: string): Promise<BreedInfo> {
     try {
       const encodedBreedName = encodeBreedNameForUrl(breedName);
-      const data = await apiClient.get<BreedInfo>(`/recommender/breeds/${encodedBreedName}`);
-      return data;
+      return await apiClient.get<BreedInfo>(
+        `/recommender/breeds/${encodedBreedName}`,
+        RECOMMENDER_TIMEOUT_MS
+      );
     } catch (error) {
-      throw new Error('Не удалось загрузить информацию о породе');
+      raiseUserError(error, 'Не удалось загрузить информацию о породе');
     }
   },
 
@@ -151,7 +155,7 @@ export const vetService = {
       const breedInfo = await this.getBreedInfo(breedName);
       return breedInfo.breed_info.diseases;
     } catch (error) {
-      throw new Error('Не удалось загрузить список заболеваний для породы');
+      raiseUserError(error, 'Не удалось загрузить список заболеваний для породы');
     }
   },
 
@@ -162,61 +166,61 @@ export const vetService = {
     try {
       const normalizedRequest = {
         ...request,
-        breed: getEnglishBreedName(request.breed)
+        breed: getEnglishBreedName(request.breed),
       };
 
-      const data = await apiClient.post<DisorderRecommendation>(
+      return await apiClient.post<DisorderRecommendation>(
         '/recommender/recommendations/disorder',
-        normalizedRequest
+        normalizedRequest,
+        RECOMMENDER_TIMEOUT_MS
       );
-      return data;
     } catch (error) {
-      throw new Error('Не удалось получить рекомендации по заболеванию');
+      raiseUserError(error, 'Не удалось получить рекомендации по заболеванию');
     }
   },
 
- async calculateCalories(request: CaloriesRequest): Promise<CaloriesCalculation> {
-  try {
-    const normalizedRequest: any = {
-      weight: request.weight,
-      age: request.age,
-      age_metric: request.age_metric,
-      gender: request.gender,
-      breed: getEnglishBreedName(request.breed),
-      activity_level: request.activity_level
-    };
+  async calculateCalories(request: CaloriesRequest): Promise<CaloriesCalculation> {
+    try {
+      const normalizedRequest: CaloriesRequest & { reproductive_status?: string } = {
+        weight: request.weight,
+        age: request.age,
+        age_metric: request.age_metric,
+        gender: request.gender,
+        breed: getEnglishBreedName(request.breed),
+        activity_level: request.activity_level,
+      };
 
-    if (request.gender.toLowerCase() === 'female') {
-      normalizedRequest.reproductive_status = 'none';
+      if (request.gender.toLowerCase() === 'female') {
+        normalizedRequest.reproductive_status = 'none';
+      }
+
+      return await apiClient.post<CaloriesCalculation>(
+        '/recommender/calculate/calories',
+        normalizedRequest,
+        RECOMMENDER_TIMEOUT_MS
+      );
+    } catch (error) {
+      raiseUserError(error, 'Не удалось рассчитать калории');
     }
-
-    console.log('Sending request:', normalizedRequest);
-
-    const data = await apiClient.post<CaloriesCalculation>(
-      '/recommender/calculate/calories',
-      normalizedRequest
-    );
-    return data;
-  } catch (error) {
-    console.error('Backend error:', error);
-    throw new Error('Не удалось рассчитать калории');
-  }
-},
+  },
 
   async calculateNutrients(request: NutrientsRequest): Promise<NutrientsCalculation> {
     try {
-      const normalizedRequest = {
-        ...request,
-        breed: getEnglishBreedName(request.breed)
+      const { target_kcal, ...rest } = request;
+      const normalizedRequest: CaloriesRequest & { reproductive_status?: string } = {
+        ...rest,
+        breed: getEnglishBreedName(request.breed),
       };
 
-      const data = await apiClient.post<NutrientsCalculation>(
-        '/recommender/calculate/nutrients',
-        normalizedRequest
-      );
-      return data;
+      if (request.gender.toLowerCase() === 'female') {
+        normalizedRequest.reproductive_status = 'none';
+      }
+
+      const endpoint = `/recommender/calculate/nutrients?target_kcal=${encodeURIComponent(target_kcal)}`;
+
+      return await apiClient.post<NutrientsCalculation>(endpoint, normalizedRequest, RECOMMENDER_TIMEOUT_MS);
     } catch (error) {
-      throw new Error('Не удалось рассчитать нутриенты');
+      raiseUserError(error, 'Не удалось рассчитать нутриенты');
     }
   },
 
@@ -224,21 +228,27 @@ export const vetService = {
     try {
       const normalizedRequest = {
         ...request,
-        breed: getEnglishBreedName(request.breed)
+        breed: getEnglishBreedName(request.breed),
       };
 
       const data = await apiClient.post<OptimizationResult>(
         '/recommender/optimize/recipe',
-        normalizedRequest
+        normalizedRequest,
+        RECOMMENDER_OPTIMIZE_TIMEOUT_MS
       );
 
       if (!data.success) {
-        throw new Error('Оптимизация не удалась');
+        throw new Error(
+          'Не удалось подобрать состав рациона с текущими ингредиентами и ограничениями. Попробуйте изменить ингредиенты или диапазоны нутриентов.'
+        );
       }
 
       return data;
     } catch (error) {
-      throw new Error('Не удалось рассчитать оптимальный состав. Попробуйте изменить параметры.');
+      raiseUserError(
+        error,
+        'Не удалось рассчитать оптимальный состав. Попробуйте изменить параметры.'
+      );
     }
   },
 
@@ -247,29 +257,22 @@ export const vetService = {
     optimizationResult: OptimizationResult
   ): Promise<SavedRecommendation> {
     try {
-      const payload = {
-        payload: optimizationResult
-      };
-
-      const data = await apiClient.post<SavedRecommendation>(
+      return await apiClient.post<SavedRecommendation>(
         `/api/v1/pets/health-records/${healthRecordId}/recommendation`,
-        payload
+        { payload: optimizationResult }
       );
-
-      return data;
     } catch (error) {
-      throw new Error('Не удалось сохранить рекомендацию');
+      raiseUserError(error, 'Не удалось сохранить рекомендацию');
     }
   },
 
   async getRecommendation(healthRecordId: string): Promise<SavedRecommendation> {
     try {
-      const data = await apiClient.get<SavedRecommendation>(
+      return await apiClient.get<SavedRecommendation>(
         `/api/v1/pets/health-records/${healthRecordId}/recommendation`
       );
-      return data;
     } catch (error) {
-      throw new Error('Не удалось загрузить рекомендацию');
+      raiseUserError(error, 'Не удалось загрузить рекомендацию');
     }
-  }
+  },
 };

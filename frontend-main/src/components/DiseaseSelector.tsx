@@ -11,6 +11,7 @@ type DiseaseSelectorProps = {
   onGetRecommendations: () => void;
   isLoadingRecommendation: boolean;
   showIngredientForm: boolean;
+  loadError?: string | null;
 };
 
 export const DiseaseSelector = ({
@@ -22,7 +23,8 @@ export const DiseaseSelector = ({
   onDiseaseSelect,
   onGetRecommendations,
   isLoadingRecommendation,
-  showIngredientForm
+  showIngredientForm,
+  loadError = null,
 }: DiseaseSelectorProps) => {
   const diseaseOptions = diseases.map(disease => ({
     value: disease,
@@ -45,6 +47,8 @@ export const DiseaseSelector = ({
         )
       ) : isLoadingDiseases ? (
         <div className={styles.loadingText}>Загрузка заболеваний...</div>
+      ) : loadError ? (
+        <div className={styles.errorText}>{loadError}</div>
       ) : diseases.length === 0 ? (
         <div className={styles.errorText}>Не удалось загрузить список заболеваний</div>
       ) : (
