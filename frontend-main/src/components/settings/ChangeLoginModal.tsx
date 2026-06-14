@@ -47,8 +47,8 @@ const ChangeLoginModal = ({ isOpen, onClose }: Props) => {
     setEmailError('');
 
     try {
-      const response = await fetch(`${apiBaseUrl}/api/v1/account/email/change-request`, {
-        method: 'POST',
+      const response = await fetch(`${apiBaseUrl}/api/v1/account`, {
+        method: 'PATCH',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ newEmail }),
@@ -105,8 +105,8 @@ const ChangeLoginModal = ({ isOpen, onClose }: Props) => {
     setCodeError('');
     setLoading(true);
     try {
-      await fetch(`${apiBaseUrl}/api/v1/account/email/change-request`, {
-        method: 'POST',
+      await fetch(`${apiBaseUrl}/api/v1/account`, {
+        method: 'PATCH',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ newEmail }),

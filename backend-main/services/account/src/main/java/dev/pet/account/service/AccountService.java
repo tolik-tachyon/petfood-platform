@@ -7,6 +7,7 @@ import dev.pet.account.exception.NotFoundException;
 import dev.pet.account.messaging.EmailProducer;
 import dev.pet.account.messaging.SmsProducer;
 import dev.pet.account.repository.UserRepository;
+import dev.pet.account.repository.SupportRequestRepository;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -43,16 +44,18 @@ public class AccountService {
     private final LoginEventRepository loginEvents;
     private final EmailProducer emailProducer;
     private final AuditLogService auditLogService;
+    private final SupportRequestRepository supportRequests;
 
 
 
-    public AccountService(UserRepository users, PasswordEncoder encoder, StringRedisTemplate redis, LoginEventRepository loginEvents, EmailProducer emailProducer, AuditLogService auditLogService) {
+    public AccountService(UserRepository users, PasswordEncoder encoder, StringRedisTemplate redis, LoginEventRepository loginEvents, EmailProducer emailProducer, AuditLogService auditLogService, SupportRequestRepository supportRequests) {
         this.users = users;
         this.encoder = encoder;
         this.redis = redis;
         this.loginEvents = loginEvents;
         this.emailProducer = emailProducer;
         this.auditLogService = auditLogService;
+        this.supportRequests = supportRequests;
     }
 
     private void logLogin(UUID userId, String ip, String ua, boolean success) {
@@ -571,6 +574,38 @@ public class AccountService {
         loginEvents.deleteByUserId(userId);
 
         users.delete(u);
+    }
+
+    @Transactional
+    public void selfDeleteAccount(UUID accountId, String sid) {
+        var u = users.findById(accountId).orElseThrow(() ->
+            new ResponseStatusException(
+                HttpStatus.NOT_FOUND, "User not found"));
+
+        loginEvents.deleteByUserId(accountId);
+        users.delete(u);
+
+        if (sid != null && !sid.isBlank()) {
+            redis.delete("session:" + sid);
+        }
+    }
+
+    @Transactional
+    public SupportRequestResponse createSupportRequest(UUID accountId, SupportRequestCreate req) {
+        var entity = new dev.pet.account.domain.SupportRequest();
+        entity.setUserId(accountId);
+        entity.setTitle(req.title().trim());
+        entity.setDescription(req.description().trim());
+
+        var saved = supportRequests.save(entity);
+
+        return new SupportRequestResponse(
+            saved.getId(),
+            saved.getTitle(),
+            saved.getDescription(),
+            saved.getStatus(),
+            saved.getCreatedAt()
+        );
     }
 
     @org.springframework.transaction.annotation.Transactional

@@ -196,6 +196,38 @@ public class AccountController {
         return ResponseEntity.ok(Map.of("status", "password_updated"));
     }
 
+    @DeleteMapping
+    public ResponseEntity<?> deleteOwnAccount(
+        @AuthenticationPrincipal Jwt jwt,
+        @CookieValue(name = "sid", required = false) String sid,
+        HttpServletResponse response
+    ) {
+        var accountId = UUID.fromString(jwt.getSubject());
+        accounts.selfDeleteAccount(accountId, sid);
+
+        ResponseCookie cookie = ResponseCookie.from("sid", "")
+            .httpOnly(true)
+            .secure(false)
+            .sameSite("Lax")
+            .path("/")
+            .maxAge(Duration.ZERO)
+            .build();
+
+        response.addHeader("Set-Cookie", cookie.toString());
+
+        return ResponseEntity.ok(Map.of("status", "deleted"));
+    }
+
+    @PostMapping("/support/request")
+    public ResponseEntity<SupportRequestResponse> createSupportRequest(
+        @AuthenticationPrincipal Jwt jwt,
+        @Valid @RequestBody SupportRequestCreate req
+    ) {
+        var accountId = UUID.fromString(jwt.getSubject());
+        var resp = accounts.createSupportRequest(accountId, req);
+        return ResponseEntity.ok(resp);
+    }
+
 //    @PostMapping("/login/phone")
 //    public ResponseEntity<?> startPhoneLogin(
 //        @Valid @RequestBody PhoneLoginStartRequest req
