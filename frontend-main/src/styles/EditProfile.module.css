@@ -1,0 +1,288 @@
+.page {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 2.5rem;
+  box-sizing: border-box;
+}
+
+.header {
+  height: 76px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #ffffff;
+  border: 1px solid #dddddd;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  margin-bottom: 1.5rem;
+  padding: 0 1.5rem;
+}
+
+.backBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #f47f4b;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+}
+
+.backBtn:hover {
+  background: #e06030;
+}
+
+.headerTitle {
+  flex: 1;
+  text-align: center;
+  color: #f47f4b;
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+  padding-right: 60px; /* compensate for back button width */
+}
+
+.card {
+  background: #ffffff;
+  border: 1px solid #dddddd;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  padding: 2rem 2.5rem;
+  display: flex;
+  gap: 2.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ---- Avatar block ---- */
+.avatarBlock {
+  flex-shrink: 0;
+  width: 220px;
+}
+
+.avatarFrame {
+  width: 220px;
+  height: 180px;
+  background: #e3e5e8;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.avatarIcon {
+  color: #aab0b8;
+}
+
+.avatarPhoto {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarActions {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 12px;
+}
+
+.avatarActionBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #777;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.avatarActionBtn:hover {
+  background: #f0f0f0;
+  color: #f47f4b;
+}
+
+.avatarActionBtn.danger:hover {
+  color: #e53e3e;
+}
+
+.hiddenInput {
+  display: none;
+}
+
+/* ---- Form ---- */
+.form {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.fieldLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 6px;
+}
+
+.inputField {
+  width: 100%;
+  height: 42px;
+  border: 1px solid #d8d8d8;
+  border-radius: 8px;
+  padding: 0 14px;
+  font-size: 14px;
+  color: #242424;
+  background: #fafafa;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.inputField:focus {
+  border-color: #f47f4b;
+  background: #ffffff;
+}
+
+.inputError {
+  border-color: #e53e3e;
+}
+
+.errorText {
+  font-size: 12px;
+  color: #e53e3e;
+  margin: -4px 0 0;
+}
+
+.dateInputWrapper {
+  position: relative;
+}
+
+.dateIcon {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888;
+  pointer-events: none;
+}
+
+.selectField {
+  width: 100%;
+  height: 42px;
+  border: 1px solid #d8d8d8;
+  border-radius: 8px;
+  padding: 0 14px;
+  font-size: 14px;
+  color: #242424;
+  background: #fafafa;
+  box-sizing: border-box;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+}
+
+.selectField:focus {
+  border-color: #f47f4b;
+  background-color: #ffffff;
+}
+
+/* ---- Footer buttons ---- */
+.footer {
+  display: flex;
+  gap: 12px;
+}
+
+.saveBtn {
+  height: 42px;
+  padding: 0 32px;
+  background: #f47f4b;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.saveBtn:hover:not(:disabled) {
+  background: #e06030;
+}
+
+.saveBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.cancelBtn {
+  height: 42px;
+  padding: 0 32px;
+  background: #ececec;
+  color: #555;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.cancelBtn:hover {
+  background: #e0e0e0;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 700px) {
+  .page {
+    padding: 1rem 0.75rem;
+  }
+
+  .header {
+    height: 64px;
+    padding: 0 1rem;
+  }
+
+  .card {
+    flex-direction: column;
+    padding: 1.25rem;
+    gap: 1.5rem;
+  }
+
+  .avatarBlock {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .avatarFrame {
+    width: 100%;
+    max-width: 260px;
+  }
+
+  .footer {
+    flex-direction: column-reverse;
+  }
+
+  .saveBtn,
+  .cancelBtn {
+    width: 100%;
+  }
+}

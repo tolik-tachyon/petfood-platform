@@ -96,7 +96,7 @@ export const Settings = () => {
               icon={MdPerson}
               title="Редактировать профиль"
               description="Имя пользователя, дата рождения, номер телефона, страна, город"
-              onClick={() => {/* TODO: реализовать позже */}}
+              onClick={() => navigate('/settings/edit-profile')}
             />
             <SettingsItem
               icon={MdLockOutline}

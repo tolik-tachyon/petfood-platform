@@ -30,6 +30,7 @@ import { UserRecommendationView } from './pages/UserRecommendationView';
 import { UserRecommendationCreateDetails } from './pages/UserRecommendationCreateDetails';
 import { Settings } from './pages/Settings';
 import { Help } from './pages/Help';
+import { EditProfile } from './pages/EditProfile';
 
 
 
@@ -168,6 +169,15 @@ function App() {
                   element={
                     <PrivateRoute allowedRoles={['USER', 'VET']}>
                       <Help />
+                    </PrivateRoute>
+                  }
+                />
+
+                <Route
+                  path="/settings/edit-profile"
+                  element={
+                    <PrivateRoute allowedRoles={['USER', 'VET']}>
+                      <EditProfile />
                     </PrivateRoute>
                   }
                 />
