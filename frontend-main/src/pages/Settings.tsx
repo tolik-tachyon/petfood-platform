@@ -2,14 +2,14 @@ import { useEffect, useState, type ComponentType, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   MdChevronRight,
-  MdDeleteOutline,
-  MdHelp,
-  MdLanguage,
-  MdLockOutline,
   MdLogout,
-  MdPerson,
-  MdSettingsBrightness,
 } from 'react-icons/md';
+import LockIcon  from '../assets/icons/lock.svg?react';
+import ProifileIcon  from '../assets/icons/profile.svg?react';
+import DeleteIcon  from '../assets/icons/delete.svg?react';
+import ThemeIcon  from '../assets/icons/theme.svg?react';
+import LanguageIcon  from '../assets/icons/language.svg?react';
+import HelpIcon  from '../assets/icons/help.svg?react';
 import { Layout } from '../../layout/Layout';
 import { useAuth } from '../../context/AuthContext';
 import LanguageModal from '../components/settings/LanguageModal';
@@ -93,19 +93,19 @@ export const Settings = () => {
           <h2 id="account-settings-title">Аккаунт</h2>
           <div className={styles.list}>
             <SettingsItem
-              icon={MdPerson}
+              icon={ProifileIcon}
               title="Редактировать профиль"
               description="Имя пользователя, дата рождения, номер телефона, страна, город"
               onClick={() => navigate('/settings/edit-profile')}
             />
             <SettingsItem
-              icon={MdLockOutline}
+              icon={LockIcon}
               title="Изменить логин и пароль"
               description="Почта и пароль пользователя"
               onClick={() => setActiveModal('credentials')}
             />
             <SettingsItem
-              icon={MdDeleteOutline}
+              icon={DeleteIcon}
               title="Удалить аккаунт"
               description="После удаления аккаунта пути назад нет. Пожалуйста, будьте уверены."
               danger
@@ -118,7 +118,7 @@ export const Settings = () => {
           <h2 id="general-settings-title">Общее</h2>
           <div className={styles.list}>
             <SettingsItem
-              icon={MdSettingsBrightness}
+              icon={ThemeIcon}
               title="Тема"
               description={isDarkTheme ? 'Темная' : 'Стандартная'}
               trailing={
@@ -132,13 +132,13 @@ export const Settings = () => {
               onClick={handleThemeChange}
             />
             <SettingsItem
-              icon={MdLanguage}
+              icon={LanguageIcon}
               title="Язык"
               description={language}
               onClick={() => setActiveModal('language')}
             />
             <SettingsItem
-              icon={MdHelp}
+              icon={HelpIcon}
               title="Помощь"
               description="Сведения и вопросы о платформе"
               onClick={() => navigate('/help')}
