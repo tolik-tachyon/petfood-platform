@@ -1,9 +1,11 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MdChevronLeft, MdEdit, MdDeleteOutline, MdPerson, MdCalendarToday } from 'react-icons/md';
 import { Layout } from '../../layout/Layout';
 import { useAuth } from '../../context/AuthContext';
 import styles from '../styles/EditProfile.module.css';
+
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
 const COUNTRIES = ['Казахстан', 'Россия', 'Узбекистан', 'Кыргызстан', 'Беларусь'];
 
@@ -14,14 +16,46 @@ export const EditProfile = () => {
 
   const [firstName, setFirstName] = useState(user?.firstName ?? '');
   const [lastName, setLastName] = useState(user?.lastName ?? '');
-  const [birthDate, setBirthDate] = useState('2000-01-01');
-  const [country, setCountry] = useState('Казахстан');
-  const [city, setCity] = useState('Астана');
-  const [phone, setPhone] = useState('+7 777 77 7777');
+  const [birthDate, setBirthDate] = useState('');
+  const [country, setCountry] = useState('');
+  const [city, setCity] = useState('');
+  const [phone, setPhone] = useState('');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
+  const [fetchError, setFetchError] = useState('');
+  const [initialLoading, setInitialLoading] = useState(true);
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const response = await fetch(`${apiBaseUrl}/api/v1/account/profile/me`, {
+          method: 'GET',
+          credentials: 'include',
+        });
+
+        if (!response.ok) {
+          throw new Error('Не удалось загрузить данные профиля');
+        }
+
+        const data = await response.json();
+
+        setFirstName(data.firstName ?? '');
+        setLastName(data.lastName ?? '');
+        setPhone(data.phone ?? '');
+        setBirthDate(data.birthDate ?? '');
+        setCountry(data.country ?? '');
+        setCity(data.city ?? '');
+      } catch (err: any) {
+        setFetchError(err.message || 'Произошла ошибка при загрузке профиля');
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+
+    loadProfile();
+  }, []);
 
   const handleAvatarPick = () => {
     fileInputRef.current?.click();
@@ -61,13 +95,34 @@ export const EditProfile = () => {
     if (!validate()) return;
 
     setLoading(true);
-    // TODO: бекенд для редактирования профиля ещё не реализован.
-    // Здесь будет вызов API сохранения профиля (имя, фамилия, дата рождения,
-    // страна, город, телефон, аватар).
-    await new Promise((res) => setTimeout(res, 600));
-    setLoading(false);
+    setFetchError('');
 
-    navigate('/settings');
+    try {
+      const response = await fetch(`${apiBaseUrl}/api/v1/account`, {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName,
+          lastName,
+          phone,
+          birthDate,
+          country,
+          city,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.message || 'Не удалось сохранить профиль');
+      }
+
+      navigate('/settings');
+    } catch (err: any) {
+      setFetchError(err.message || 'Произошла ошибка при сохранении');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCancel = () => {
@@ -84,6 +139,9 @@ export const EditProfile = () => {
           </button>
           <h1 className={styles.headerTitle}>Редактирование профиля</h1>
         </header>
+
+        {initialLoading && <p style={{ color: '#888', fontSize: 13, margin: '0 0 12px' }}>Загрузка...</p>}
+        {fetchError && <p className={styles.errorText}>{fetchError}</p>}
 
         <div className={styles.card}>
           <div className={styles.avatarBlock}>
@@ -163,6 +221,7 @@ export const EditProfile = () => {
                 value={country}
                 onChange={(e) => setCountry(e.target.value)}
               >
+                <option value="">Не указано</option>
                 {COUNTRIES.map((c) => (
                   <option key={c} value={c}>
                     {c}

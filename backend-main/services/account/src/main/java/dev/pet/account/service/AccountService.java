@@ -81,7 +81,11 @@ public class AccountService {
             u.getEmail(),
             u.getFirstName(),
             u.getLastName(),
-//            u.getPhone(),
+            u.getPhone(),
+            u.getBirthDate(),
+            u.getCountry(),
+            u.getCity(),
+            u.getAvatarUrl(),
             role,
             u.getCreatedAt()
         );
@@ -253,6 +257,10 @@ public class AccountService {
 
         if (req.firstName() != null) u.setFirstName(req.firstName());
         if (req.lastName()  != null) u.setLastName(req.lastName());
+        if (req.phone()     != null) u.setPhone(req.phone());
+        if (req.birthDate() != null) u.setBirthDate(req.birthDate());
+        if (req.country()   != null) u.setCountry(req.country());
+        if (req.city()      != null) u.setCity(req.city());
 
         if (req.newEmail() != null && !req.newEmail().isBlank()) {
             var newEmail = req.newEmail().trim().toLowerCase();

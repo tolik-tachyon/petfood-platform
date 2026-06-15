@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import EditIcon from '../assets/icons/edit.svg?react';
 import { Layout } from '../../layout/Layout';
 import { useAuth } from '../../context/AuthContext';
 import ProfileIcon from '../assets/icons/profile.svg?react';
 import styles from '../styles/Profile.module.css';
+
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
 type ActivityItem = {
   id: string;
@@ -56,14 +58,51 @@ export const Profile = () => {
   const { user } = useAuth();
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
-  // Мок-данные для полей, которых пока нет в AuthContext
-  const phone = '+7 777 777 7777';
-  const birthDate = '1 января 2000';
-  const country = 'Казахстан';
-  const city = 'Астана';
+  const [firstName, setFirstName] = useState(user?.firstName ?? '');
+  const [lastName, setLastName] = useState(user?.lastName ?? '');
+  const [phone, setPhone] = useState('');
+  const [birthDate, setBirthDate] = useState('');
+  const [country, setCountry] = useState('');
+  const [city, setCity] = useState('');
+  const [loading, setLoading] = useState(true);
 
-  const fullName = `${user?.firstName ?? 'Александр'} ${user?.lastName ?? 'Соколов'}`;
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const response = await fetch(`${apiBaseUrl}/api/v1/account/profile/me`, {
+          method: 'GET',
+          credentials: 'include',
+        });
+
+        if (!response.ok) return;
+
+        const data = await response.json();
+
+        setFirstName(data.firstName ?? '');
+        setLastName(data.lastName ?? '');
+        setPhone(data.phone ?? '');
+        setBirthDate(data.birthDate ?? '');
+        setCountry(data.country ?? '');
+        setCity(data.city ?? '');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProfile();
+  }, []);
+
+  const fullName = `${firstName || user?.firstName || ''} ${lastName || user?.lastName || ''}`.trim();
   const email = user?.email ?? 'user26@gmail.com';
+
+  const formatBirthDate = (value: string) => {
+    if (!value) return 'Не указано';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return value;
+    return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+  };
+
+  const display = (value: string) => value || 'Не указано';
 
   const visibleActivity = ACTIVITY_HISTORY.slice(0, visibleCount);
   const hasMore = visibleCount < ACTIVITY_HISTORY.length;
@@ -84,6 +123,8 @@ export const Profile = () => {
           </button>
         </header>
 
+        {loading && <p style={{ color: '#888', fontSize: 13, margin: '0 0 12px' }}>Загрузка...</p>}
+
         <div className={styles.card}>
           <div className={styles.avatarFrame}>
             <ProfileIcon className={styles.avatarIcon} width={96} height={96} />
@@ -98,19 +139,19 @@ export const Profile = () => {
             </div>
             <div className={styles.infoRow}>
               <span className={styles.infoLabel}>Телефон</span>
-              <span className={styles.infoValue}>{phone}</span>
+              <span className={styles.infoValue}>{display(phone)}</span>
             </div>
             <div className={styles.infoRow}>
               <span className={styles.infoLabel}>Дата рождения</span>
-              <span className={styles.infoValue}>{birthDate}</span>
+              <span className={styles.infoValue}>{formatBirthDate(birthDate)}</span>
             </div>
             <div className={styles.infoRow}>
               <span className={styles.infoLabel}>Страна</span>
-              <span className={styles.infoValue}>{country}</span>
+              <span className={styles.infoValue}>{display(country)}</span>
             </div>
             <div className={styles.infoRow}>
               <span className={styles.infoLabel}>Город</span>
-              <span className={styles.infoValue}>{city}</span>
+              <span className={styles.infoValue}>{display(city)}</span>
             </div>
           </div>
         </div>

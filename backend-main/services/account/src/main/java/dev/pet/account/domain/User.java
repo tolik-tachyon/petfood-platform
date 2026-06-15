@@ -37,6 +37,21 @@ public class User extends BaseEntity {
     @Column(name = "role", nullable = false, length = 32)
     private Role role = Role.USER;
 
+    @Column(length = 32)
+    private String phone;
+
+    @Column(name = "birth_date")
+    private java.time.LocalDate birthDate;
+
+    @Column(length = 100)
+    private String country;
+
+    @Column(length = 100)
+    private String city;
+
+    @Column(name = "avatar_url", length = 512)
+    private String avatarUrl;
+
     public Role getRole() { return role; }
     public void setRole(Role role) { this.role = role; }
 
@@ -66,5 +81,26 @@ public class User extends BaseEntity {
 
     public UserStatus getStatus() { return status; }
     public void setStatus(UserStatus status) { this.status = status; }
+
+    public String getPhone() { return phone; }
+    public void setPhone(String phone) {
+        this.phone = (phone == null || phone.isBlank()) ? null : phone.trim();
+    }
+
+    public java.time.LocalDate getBirthDate() { return birthDate; }
+    public void setBirthDate(java.time.LocalDate birthDate) { this.birthDate = birthDate; }
+
+    public String getCountry() { return country; }
+    public void setCountry(String country) {
+        this.country = (country == null || country.isBlank()) ? null : country.trim();
+    }
+
+    public String getCity() { return city; }
+    public void setCity(String city) {
+        this.city = (city == null || city.isBlank()) ? null : city.trim();
+    }
+
+    public String getAvatarUrl() { return avatarUrl; }
+    public void setAvatarUrl(String avatarUrl) { this.avatarUrl = avatarUrl; }
 
 }
