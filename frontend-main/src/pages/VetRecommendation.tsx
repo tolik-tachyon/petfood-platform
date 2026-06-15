@@ -23,10 +23,10 @@ import type {
 } from '../types/vetRecommendation';
 
 const DEFAULT_NUTRIENT_RANGES: NutrientRangesType = {
-  moisture: { min: 10, max: 35 },
-  protein: { min: 40, max: 65 },
-  carbs: { min: 30, max: 45 },
-  fats: { min: 5, max: 30 }
+  moisture: { min: 65, max: 90 },
+  protein: { min: 10, max: 65 },
+  carbs: { min: 10, max: 20 },
+  fats: { min: 5, max: 10 }
 };
 
 const NUTRIENT_RANGE_MARGIN = 5;
