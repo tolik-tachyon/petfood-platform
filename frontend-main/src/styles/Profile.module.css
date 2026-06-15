@@ -1,0 +1,263 @@
+.page {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 2.5rem;
+  box-sizing: border-box;
+}
+
+.header {
+  height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border: 1px solid #dddddd;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  margin-bottom: 1.5rem;
+  padding: 0 1.5rem;
+}
+
+.headerSpacer {
+  width: 110px;
+  flex-shrink: 0;
+}
+
+.headerTitle {
+  flex: 1;
+  text-align: center;
+  color: #f47f4b;
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.editBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f47f4b;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.editBtn:hover {
+  background: #e06030;
+}
+
+/* ---- Profile card ---- */
+.card {
+  background: #ffffff;
+  border: 1px solid #dddddd;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  padding: 2rem 2.5rem;
+  display: flex;
+  gap: 2.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.avatarFrame {
+  flex-shrink: 0;
+  width: 180px;
+  height: 180px;
+  background: #e3e5e8;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.avatarIcon {
+  color: #aab0b8;
+}
+
+.avatarPhoto {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.infoBlock {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 14px;
+}
+
+.fullName {
+  font-size: 28px;
+  font-weight: 700;
+  color: #242424;
+  margin: 0 0 8px;
+}
+
+.infoRow {
+  display: flex;
+  gap: 12px;
+  font-size: 14px;
+}
+
+.infoLabel {
+  font-weight: 700;
+  color: #333;
+  width: 130px;
+  flex-shrink: 0;
+}
+
+.infoValue {
+  color: #555;
+}
+
+/* ---- Activity card ---- */
+.activityCard {
+  background: #ffffff;
+  border: 1px solid #dddddd;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  padding: 1.75rem 2.5rem;
+}
+
+.activityTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: #f47f4b;
+  margin: 0 0 4px;
+}
+
+.activityItem {
+  display: flex;
+  gap: 24px;
+  padding: 16px 0;
+  border-top: 1px solid #ececec;
+}
+
+.activityDate {
+  flex-shrink: 0;
+  width: 90px;
+  font-size: 13px;
+  color: #888;
+  padding-top: 2px;
+}
+
+.activityContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.activityName {
+  font-size: 14px;
+  font-weight: 700;
+  color: #242424;
+  margin: 0 0 4px;
+}
+
+.activityDesc {
+  font-size: 13px;
+  color: #777;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.showMoreBtn {
+  display: block;
+  width: 100%;
+  text-align: center;
+  background: none;
+  border: none;
+  border-top: 1px solid #ececec;
+  padding-top: 16px;
+  margin-top: 4px;
+  font-size: 14px;
+  color: #555;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.showMoreBtn:hover {
+  color: #f47f4b;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 700px) {
+  .page {
+    padding: 1rem 0.75rem;
+  }
+
+  .header {
+    height: auto;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 0.75rem 1rem;
+  }
+
+  .headerSpacer {
+    display: none;
+  }
+
+  .headerTitle {
+    order: 1;
+    flex: 1 1 100%;
+    text-align: left;
+  }
+
+  .editBtn {
+    order: 2;
+  }
+
+  .card {
+    flex-direction: column;
+    padding: 1.25rem;
+    gap: 1.25rem;
+  }
+
+  .avatarFrame {
+    width: 100%;
+    max-width: 220px;
+    margin: 0 auto;
+  }
+
+  .fullName {
+    text-align: center;
+    font-size: 22px;
+  }
+
+  .infoRow {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .infoLabel {
+    width: auto;
+  }
+
+  .activityCard {
+    padding: 1.25rem;
+  }
+
+  .activityItem {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .activityDate {
+    width: auto;
+  }
+
+  .activityDesc {
+    white-space: normal;
+  }
+}
