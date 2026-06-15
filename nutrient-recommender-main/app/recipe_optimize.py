@@ -8,7 +8,125 @@ import math
 from typing import Dict, Iterable, List, Optional, Tuple
 
 import numpy as np
+import pandas as pd
 from scipy.optimize import minimize
+
+# Frontend mockData shortcuts and merge_tab Standart names without nutrient rows.
+INGREDIENT_ALIASES: Dict[str, str] = {
+    "курица-мясо": "Курица — Мясо",
+    "курица — мясо": "Курица — Мясо",
+    "говядина": "Говядина — Грудинка",
+    "индейка": "Индейка — Мясо",
+    "морковь": "Морковь — Обыкновенный",
+    "кабачок": "Кабачок — Обыкновенный",
+    "тыква": "Тыква — Обыкновенный",
+    "кукуруза": "Кукуруза — Обыкновенная",
+    "рис": "Рис — Белый, Длиннозерный",
+    "овсянка": "Овес — Обыкновенный",
+    "яйцо": "Яйцо — Куринное",
+    "вода": "Вода — Обыкновенный",
+    "соль": "Соль — Поваренная, йодированная",
+    "сахар": "Сахар — Белый, Гранулированный",
+}
+
+
+def build_standart_to_food_key_map(
+    merge_tab_df,
+    food_ingredients_df,
+) -> Dict[str, str]:
+    """Map Standart display names to food matrix keys."""
+    mapping: Dict[str, str] = {}
+
+    for _, row in merge_tab_df.iterrows():
+        standart = row.get("Standart")
+        translate = row.get("Translate")
+        if pd.isna(standart) or pd.isna(translate):
+            continue
+
+        standart = str(standart).strip()
+        candidates = food_ingredients_df[
+            food_ingredients_df["Ингредиенты"] == str(translate).strip()
+        ]["ингредиент и описание"].tolist()
+
+        if candidates and standart not in mapping:
+            mapping[standart] = candidates[0]
+
+    return mapping
+
+
+def resolve_ingredient_name(
+    name: str,
+    food_keys: set,
+    standart_map: Dict[str, str],
+) -> Optional[str]:
+    s = name.strip()
+    if not s:
+        return None
+
+    if s in food_keys:
+        return s
+
+    if s in standart_map and standart_map[s] in food_keys:
+        return standart_map[s]
+
+    alias_key = s.lower().replace("-", "—")
+    alias_target = INGREDIENT_ALIASES.get(alias_key)
+    if alias_target:
+        if alias_target in food_keys:
+            return alias_target
+        if alias_target in standart_map and standart_map[alias_target] in food_keys:
+            return standart_map[alias_target]
+
+    prefix = f"{s} — "
+    matches = sorted(k for k in food_keys if k.startswith(prefix))
+    if matches:
+        return matches[0]
+
+    if s in standart_map:
+        return standart_map[s]
+
+    return None
+
+
+def resolve_recipe_ingredients(
+    names: List[str],
+    food_keys: set,
+    merge_tab_df,
+    food_ingredients_df,
+) -> Tuple[List[str], Dict[str, str], List[str]]:
+    """
+    Resolve ingredient display names to food matrix keys.
+    Returns (resolved_names, original_to_resolved, missing_original_names).
+    """
+    standart_map = build_standart_to_food_key_map(merge_tab_df, food_ingredients_df)
+    resolved: List[str] = []
+    name_map: Dict[str, str] = {}
+    missing: List[str] = []
+    seen = set()
+
+    for name in names:
+        key = resolve_ingredient_name(name, food_keys, standart_map)
+        if key and key in food_keys:
+            name_map[name] = key
+            if key not in seen:
+                resolved.append(key)
+                seen.add(key)
+        else:
+            missing.append(name)
+
+    return resolved, name_map, missing
+
+
+def remap_ingredient_ranges(
+    ingredient_ranges: Iterable,
+    name_map: Dict[str, str],
+) -> Dict[str, Tuple[float, float]]:
+    result: Dict[str, Tuple[float, float]] = {}
+    for item in ingredient_ranges:
+        resolved = name_map.get(item.ingredient, item.ingredient)
+        result[resolved] = (item.min_percent, item.max_percent)
+    return result
+
 
 # Frontend (MaximizationOptions) uses English slugs; food matrix uses Russian keys.
 NUTRIENT_SLUG_TO_RU: Dict[str, str] = {

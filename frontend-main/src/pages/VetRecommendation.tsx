@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useRequests } from '../../context/RequestContext';
 import { vetService } from '../../services/vetService';
@@ -13,6 +13,7 @@ import { CalorieCalculator } from '../components/CalorieCalculator';
 import { IngredientSelector } from '../components/IngredientSelector';
 import { NutrientRanges } from '../components/NutrientRanges';
 import { MaximizationOptions } from '../components/MaximizationOptions';
+import { FormErrorBanner } from '../components/FormErrorBanner';
 import styles from '../styles/VetRecommendation.module.css';
 
 import type {
@@ -61,8 +62,18 @@ export const VetRecommendation = () => {
 
   const [isCalculating, setIsCalculating] = useState(false);
   const [calculationError, setCalculationError] = useState<string | null>(null);
+  const [diseasesLoadError, setDiseasesLoadError] = useState<string | null>(null);
+  const [kcalError, setKcalError] = useState<string | null>(null);
+  const errorBannerRef = useRef<HTMLDivElement>(null);
 
   const kcalChanged = targetKcal !== initialKcal;
+
+  const showActionError = (message: string) => {
+    setCalculationError(message);
+    requestAnimationFrame(() => {
+      errorBannerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  };
 
   useEffect(() => {
     if (!request) {
@@ -98,13 +109,17 @@ export const VetRecommendation = () => {
     const loadDiseases = async () => {
       setIsLoadingDiseases(true);
       setDiseases([]);
+      setDiseasesLoadError(null);
 
       try {
         const diseaseList = await vetService.getBreedDiseases(englishBreedName);
         setDiseases(diseaseList);
-        setIsLoadingDiseases(false);
-      } catch (err: any) {
+      } catch (err) {
         setDiseases([]);
+        setDiseasesLoadError(
+          err instanceof Error ? err.message : 'Не удалось загрузить список заболеваний для породы'
+        );
+      } finally {
         setIsLoadingDiseases(false);
       }
     };
@@ -119,6 +134,7 @@ export const VetRecommendation = () => {
 
     const calculateDailyKcal = async () => {
       setIsCalculatingKcal(true);
+      setKcalError(null);
 
       try {
         const petAge = request.birthDate ? calculatePetAge(request.birthDate) : 2;
@@ -139,6 +155,7 @@ export const VetRecommendation = () => {
         setInitialKcal(calculatedKcal);
       } catch (err) {
         setDailyKcal(null);
+        setKcalError(err instanceof Error ? err.message : 'Не удалось рассчитать калории');
       } finally {
         setIsCalculatingKcal(false);
       }
@@ -157,6 +174,8 @@ export const VetRecommendation = () => {
   const handleRecalculateNutrients = async () => {
     if (!request || !targetKcal || !englishBreedName) return;
 
+    setKcalError(null);
+
     try {
       const petAge = request.birthDate ? calculatePetAge(request.birthDate) : 2;
       const activityLevel = getActivityLevel(request.activityTypeName);
@@ -173,12 +192,13 @@ export const VetRecommendation = () => {
 
       setInitialKcal(targetKcal);
     } catch (err) {
-      console.error('Failed to calculate nutrients:', err);
+      setKcalError(err instanceof Error ? err.message : 'Не удалось пересчитать нутриенты');
     }
   };
 
   const handleDiseaseSelect = (disease: string) => {
     setSelectedDisease(disease);
+    setCalculationError(null);
     if (!disease) {
       setShowIngredientForm(false);
     }
@@ -200,8 +220,10 @@ export const VetRecommendation = () => {
       populateRecommendedIngredients(recommendation);
       setNutrientRangesFromPredicted(recommendation.predicted_nutrients);
       setShowIngredientForm(true);
-    } catch (err: any) {
-      setCalculationError(err.message || 'Не удалось получить рекомендации');
+    } catch (err) {
+      showActionError(
+        err instanceof Error ? err.message : 'Не удалось получить рекомендации'
+      );
     } finally {
       setIsLoadingRecommendation(false);
     }
@@ -286,7 +308,7 @@ export const VetRecommendation = () => {
 
   const handleCalculate = async () => {
     if (!request || selectedIngredients.length === 0 || !englishBreedName) {
-      setCalculationError('Выберите хотя бы один ингредиент');
+      showActionError('Выберите хотя бы один ингредиент');
       return;
     }
 
@@ -339,8 +361,10 @@ export const VetRecommendation = () => {
           shouldRefreshDashboard: true
         }
       });
-    } catch (err: any) {
-      setCalculationError(err.message || 'Не удалось рассчитать оптимальный состав');
+    } catch (err) {
+      showActionError(
+        err instanceof Error ? err.message : 'Не удалось рассчитать оптимальный состав'
+      );
     } finally {
       setIsCalculating(false);
     }
@@ -377,6 +401,15 @@ export const VetRecommendation = () => {
 
         <PetInfoCard request={request} />
 
+        {calculationError && (
+          <div ref={errorBannerRef}>
+            <FormErrorBanner
+              message={calculationError}
+              onDismiss={() => setCalculationError(null)}
+            />
+          </div>
+        )}
+
         <DiseaseSelector
           englishBreedName={englishBreedName}
           isLoadingBreed={isLoadingReference}
@@ -387,6 +420,7 @@ export const VetRecommendation = () => {
           onGetRecommendations={handleGetRecommendations}
           isLoadingRecommendation={isLoadingRecommendation}
           showIngredientForm={showIngredientForm}
+          loadError={diseasesLoadError}
         />
 
         {showIngredientForm && disorderRecommendation && (
@@ -398,6 +432,7 @@ export const VetRecommendation = () => {
               kcalChanged={kcalChanged}
               isCalculatingKcal={isCalculatingKcal}
               onRecalculate={handleRecalculateNutrients}
+              errorMessage={kcalError}
             />
 
             <IngredientSelector
@@ -421,12 +456,6 @@ export const VetRecommendation = () => {
                   maximizeNutrients={maximizeNutrients}
                   onToggle={toggleMaximizeNutrient}
                 />
-
-                {calculationError && (
-                  <div className={styles.errorMessage}>
-                    {calculationError}
-                  </div>
-                )}
 
                 <button
                   onClick={handleCalculate}

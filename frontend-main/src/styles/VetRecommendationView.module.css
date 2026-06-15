@@ -177,6 +177,16 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
+.pdfChartsHost {
+  width: 920px;
+  background: #ffffff;
+}
+
+.pdfChartsHost .chartSection,
+.pdfChartsHost .balanceChart {
+  margin-bottom: 1.5rem;
+}
+
 .balanceChartsRow {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

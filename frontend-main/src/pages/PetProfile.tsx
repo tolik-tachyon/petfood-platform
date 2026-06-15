@@ -6,6 +6,7 @@ import { PET_PROFILE_TEXT } from '../const/petProfile';
 import { getReproductiveStatusLabel, isLactationStatus, formatGender } from '../utils/petProfileHelpers';
 import { formatAge, formatDate, getActivityColor } from '../utils/petUtils';
 import ConfirmationModal from '../components/ConfirmationModal';
+import { PetProfileExportButton } from '../components/PetProfileExportButton';
 import { PetProfilePhoto } from '../components/PetProfilePhoto';
 import { PetProfileParamItem } from '../components/PetProfileParamItem';
 import { apiClient } from '../utils/apiClient';
@@ -142,6 +143,11 @@ const PetProfile = () => {
               {PET_PROFILE_TEXT.BACK_BUTTON}
             </button>
             <h1 className={styles.title}>{PET_PROFILE_TEXT.PAGE_TITLE}</h1>
+            <PetProfileExportButton
+              pet={pet}
+              requests={petRequests}
+              recommendations={requestsWithRecommendations}
+            />
             <button onClick={() => setIsModalOpen(true)} className={styles.deleteBtn}>
               {PET_PROFILE_TEXT.DELETE_BUTTON}
             </button>

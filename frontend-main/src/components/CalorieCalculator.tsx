@@ -7,6 +7,7 @@ type CalorieCalculatorProps = {
   kcalChanged: boolean;
   isCalculatingKcal: boolean;
   onRecalculate: () => void;
+  errorMessage?: string | null;
 };
 
 export const CalorieCalculator = ({
@@ -15,11 +16,13 @@ export const CalorieCalculator = ({
   dailyKcal,
   kcalChanged,
   isCalculatingKcal,
-  onRecalculate
+  onRecalculate,
+  errorMessage = null,
 }: CalorieCalculatorProps) => {
   return (
     <>
       <h2 className={styles.sectionTitle}>Целевая энергия (ккал)</h2>
+      {errorMessage && <p className={styles.errorText}>{errorMessage}</p>}
       <div className={styles.calorieContainer}>
         <input
           type="number"

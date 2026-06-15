@@ -5,6 +5,12 @@
   margin-left: 80px;
 }
 
+.pageContent {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
 .header {
   max-width: 1400px;
   margin: 0 auto 2rem;
@@ -149,6 +155,10 @@
   .container {
     padding: 1rem;
     margin-left: 60px;
+  }
+
+  .pageContent {
+    padding: 0;
   }
 
   .grid {
