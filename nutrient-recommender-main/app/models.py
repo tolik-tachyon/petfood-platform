@@ -67,6 +67,7 @@ class DogInfoRequest(BaseModel):
     num_puppies: Optional[int] = Field(None, ge=0, description="Number of puppies (if lactating)")
     activity_level: Optional[ActivityLevel] = Field(None, description="Activity level")
 
+
     @validator('reproductive_status', 'pregnancy_period', 'lactation_week', 'num_puppies')
     def check_female_only(cls, v, values):
         if v is not None and values.get('gender') != GenderType.FEMALE:

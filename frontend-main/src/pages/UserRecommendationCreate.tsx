@@ -23,9 +23,9 @@ import type {
 } from '../types/vetRecommendation';
 
 const DEFAULT_NUTRIENT_RANGES: NutrientRangesType = {
-  moisture: { min: 10, max: 35 },
-  protein: { min: 40, max: 65 },
-  carbs: { min: 30, max: 45 },
+  moisture: { min: 70, max: 90 },
+  protein: { min: 10, max: 25 },
+  carbs: { min: 5, max: 20 },
   fats: { min: 5, max: 30 }
 };
 
@@ -243,20 +243,20 @@ export const UserRecommendationCreate = () => {
   const setNutrientRangesFromPredicted = (predicted: DisorderRecommendation['predicted_nutrients']) => {
     setNutrientRanges({
       moisture: {
-        min: Math.max(0, (predicted.moisture || 10) - NUTRIENT_RANGE_MARGIN),
-        max: Math.min(100, (predicted.moisture || 35) + NUTRIENT_RANGE_MARGIN)
+        min: Math.max(0, (predicted.moisture || 70) - 5),
+        max: Math.min(100, (predicted.moisture || 90) + 5)
       },
       protein: {
-        min: Math.max(0, predicted.protein - NUTRIENT_RANGE_MARGIN),
-        max: Math.min(100, predicted.protein + NUTRIENT_RANGE_MARGIN)
+        min: Math.max(0, predicted.protein - 3),
+        max: Math.min(100, predicted.protein + 6)
       },
       carbs: {
-        min: Math.max(0, predicted['carbohydrate (nfe)'] - NUTRIENT_RANGE_MARGIN),
-        max: Math.min(100, predicted['carbohydrate (nfe)'] + NUTRIENT_RANGE_MARGIN)
+        min: Math.max(0, predicted['carbohydrate (nfe)'] - 4),
+        max: Math.min(100, predicted['carbohydrate (nfe)'] + 4)
       },
       fats: {
-        min: Math.max(0, predicted.fat - NUTRIENT_RANGE_MARGIN),
-        max: Math.min(100, predicted.fat + NUTRIENT_RANGE_MARGIN)
+        min: Math.max(0, predicted.fat - 1),
+        max: Math.min(100, predicted.fat + 1)
       }
     });
   };

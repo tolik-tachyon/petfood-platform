@@ -121,12 +121,8 @@ async def calculate_calories(request: DogInfoRequest):
         age_type_categ = age_type_category(size_categ, request.age, request.age_metric.value)
 
         # Get activity level based on age category
-        activity_level = None
-        if age_type_categ == age_category_types[1]:  # Adult
-            activity_level = request.activity_level_adult.value if request.activity_level_adult else None
-        elif age_type_categ == age_category_types[2]:  # Elderly
-            activity_level = request.activity_level_elderly.value if request.activity_level_elderly else None
-
+        activity_level = request.activity_level.value if request.activity_level else None
+   
         # Calculate calories
         reproductive_status = request.reproductive_status.value if request.reproductive_status else None
         pregnancy_period = request.pregnancy_period.value if request.pregnancy_period else None
