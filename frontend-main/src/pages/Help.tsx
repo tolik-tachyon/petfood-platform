@@ -4,7 +4,7 @@ import { MdChevronLeft } from 'react-icons/md';
 import { Layout } from '../../layout/Layout';
 import styles from '../styles/Help.module.css';
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '';
 
 export const Help = () => {
   const navigate = useNavigate();

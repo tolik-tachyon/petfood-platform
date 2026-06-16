@@ -5,7 +5,7 @@ import { Layout } from '../../layout/Layout';
 import { useAuth } from '../../context/AuthContext';
 import styles from '../styles/EditProfile.module.css';
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '';
 
 const COUNTRIES = ['Казахстан', 'Россия', 'Узбекистан', 'Кыргызстан', 'Беларусь'];
 
@@ -36,6 +36,11 @@ export const EditProfile = () => {
         });
 
         if (!response.ok) {
+          throw new Error('Не удалось загрузить данные профиля');
+        }
+
+        const contentType = response.headers.get('content-type') ?? '';
+        if (!contentType.includes('application/json')) {
           throw new Error('Не удалось загрузить данные профиля');
         }
 

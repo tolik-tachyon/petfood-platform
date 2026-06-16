@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { MdCheckCircle } from 'react-icons/md';
 import styles from '../../styles/SettingsModals.module.css';
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '';
 
 type Props = {
   isOpen: boolean;

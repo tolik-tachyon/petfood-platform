@@ -4,7 +4,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import styles from '../../styles/SettingsModals.module.css';
 import inputStyles from '../../styles/InputField.module.css';
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '';
 
 type Step = 'input' | 'code' | 'success' | 'error';
 

@@ -6,7 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import ProfileIcon from '../assets/icons/profile.svg?react';
 import styles from '../styles/Profile.module.css';
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '';
 
 type ActivityItem = {
   id: string;
@@ -76,6 +76,9 @@ export const Profile = () => {
 
         if (!response.ok) return;
 
+        const contentType = response.headers.get('content-type') ?? '';
+        if (!contentType.includes('application/json')) return;
+
         const data = await response.json();
 
         setFirstName(data.firstName ?? '');
@@ -84,6 +87,8 @@ export const Profile = () => {
         setBirthDate(data.birthDate ?? '');
         setCountry(data.country ?? '');
         setCity(data.city ?? '');
+      } catch {
+        // профиль не загрузился — оставляем значения по умолчанию
       } finally {
         setLoading(false);
       }
