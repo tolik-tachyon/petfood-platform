@@ -33,6 +33,7 @@ export const CalorieCalculator = ({
           step="100"
           disabled={isCalculatingKcal}
         />
+        
         {dailyKcal && (
           <span className={styles.recommendedText}>
             Рекомендуемая: {dailyKcal} ккал
