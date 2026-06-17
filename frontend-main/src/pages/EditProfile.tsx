@@ -1,6 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MdChevronLeft, MdEdit, MdDeleteOutline, MdPerson, MdCalendarToday } from 'react-icons/md';
+import { MdChevronLeft, MdPerson} from 'react-icons/md';
+import DeleteIcon from '../assets/icons/delete.svg?react';
+import EditIcon from '../assets/icons/edit.svg?react';
+import DateIcon from '../assets/icons/date.svg?react';
 import { Layout } from '../../layout/Layout';
 import { useAuth } from '../../context/AuthContext';
 import styles from '../styles/EditProfile.module.css';
@@ -164,7 +167,7 @@ export const EditProfile = () => {
                 onClick={handleAvatarPick}
                 title="Изменить фото"
               >
-                <MdEdit size={20} />
+                <EditIcon size={20} />
               </button>
               <button
                 type="button"
@@ -172,7 +175,7 @@ export const EditProfile = () => {
                 onClick={handleAvatarDelete}
                 title="Удалить фото"
               >
-                <MdDeleteOutline size={20} />
+                <DeleteIcon size={20} />
               </button>
             </div>
             <input
@@ -214,7 +217,7 @@ export const EditProfile = () => {
                   value={birthDate}
                   onChange={(e) => setBirthDate(e.target.value)}
                 />
-                <MdCalendarToday size={18} className={styles.dateIcon} />
+                <DateIcon size={18} className={styles.dateIcon} />
               </div>
               {errors.birthDate && <p className={styles.errorText}>{errors.birthDate}</p>}
             </div>
