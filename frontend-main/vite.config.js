@@ -11,11 +11,11 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:8090',
+        target: 'http://10.1.10.144:8090',
         changeOrigin: true,
       },
       '/recommender': {
-        target: 'http://localhost:8000',
+        target: 'http://10.1.10.144:8000',
         changeOrigin: true,
       },
     },
